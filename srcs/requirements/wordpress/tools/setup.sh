@@ -7,18 +7,67 @@ while ! nc -z mariadb 3306; do
 done
 echo "✅ MariaDB est disponible"
 
-# Appliquer la config WordPress si pas déjà fait
-if [ ! -f /var/www/html/wp-config.php ]; then
-  cp wp-config-sample.php wp-config.php
-  sed -i "s/database_name_here/$WORDPRESS_DB_NAME/" wp-config.php
-  sed -i "s/username_here/$WORDPRESS_DB_USER/" wp-config.php
-  sed -i "s/password_here/$WORDPRESS_DB_PASSWORD/" wp-config.php
-  sed -i "s/localhost/$WORDPRESS_DB_HOST/" wp-config.php
-  echo "define('WP_DEBUG', true);" >> wp-config.php
+# Vérifier et créer le répertoire WordPress si nécessaire
+mkdir -p /var/www/html
 
+# Configuration WordPress si pas déjà fait
+if [ ! -f /var/www/html/wp-config.php ]; then
+  echo "🔄 Configuration initiale de WordPress..."
+
+  # Vérifier si WordPress est déjà téléchargé
+  if [ ! -f /var/www/html/wp-includes/version.php ]; then
+    echo "🔄 Téléchargement de WordPress..."
+    wp core download --allow-root --path=/var/www/html
+    echo "✅ WordPress téléchargé"
+  else
+    echo "✅ WordPress déjà présent"
+  fi
+
+  echo "🔄 Création de la configuration WordPress..."
+  wp config create \
+    --dbname=$WORDPRESS_DB_NAME \
+    --dbuser=$WORDPRESS_DB_USER \
+    --dbpass=$WORDPRESS_DB_PASSWORD \
+    --dbhost=$WORDPRESS_DB_HOST \
+    --path=/var/www/html \
+    --allow-root
+
+  # Vérifier si WordPress est déjà installé dans la base de données
+  if ! wp core is-installed --path=/var/www/html --allow-root 2>/dev/null; then
+    echo "🔄 Installation de WordPress..."
+    wp core install \
+      --url="https://$DOMAIN_NAME" \
+      --title="Mon super site" \
+      --admin_user=$WP_ADMIN_USER \
+      --admin_password=$WP_ADMIN_PASSWORD \
+      --admin_email=$WP_ADMIN_EMAIL \
+      --skip-email \
+      --path=/var/www/html \
+      --allow-root
+
+    echo "🔄 Création de l'utilisateur supplémentaire..."
+    if ! wp user get $WP_USER --path=/var/www/html --allow-root 2>/dev/null; then
+      wp user create $WP_USER $WP_USER_EMAIL \
+        --user_pass=$WP_USER_PASSWORD \
+        --role=author \
+        --path=/var/www/html \
+        --allow-root
+    fi
+
+    echo "✅ WordPress installé avec succès"
+  else
+    echo "✅ WordPress déjà installé dans la base de données"
+  fi
+
+  echo "🔄 Configuration des permissions..."
   chown -R www-data:www-data /var/www/html
   chmod -R 755 /var/www/html
-  echo "✅ Configuration WordPress appliquée"
+
+else
+  echo "✅ WordPress déjà configuré"
+  # S'assurer que les permissions sont correctes
+  chown -R www-data:www-data /var/www/html
+  chmod -R 755 /var/www/html
 fi
 
 # Lancer PHP-FPM en mode foreground
