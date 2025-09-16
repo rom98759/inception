@@ -1,4 +1,7 @@
 NAME=inception
+include srcs/.env
+export $(shell sed 's/=.*//' srcs/.env)
+
 
 all: setup up
 
