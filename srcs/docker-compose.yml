@@ -43,6 +43,20 @@ services:
       - wordpress_data:/var/www/html
     restart: unless-stopped
 
+  redis:
+    build: ./requirements/bonus/redis
+    container_name: redis
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+    ports:
+      - "6379:6379"
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: unless-stopped
 
 volumes:
   mariadb_data:

@@ -28,13 +28,18 @@ down:
 
 fclean: down
 	docker compose -f ./srcs/docker-compose.yml down --volumes --rmi all
+	docker builder prune -f
 	@sudo rm -rf /home/$(USER)/data/mariadb/*
 	@sudo rm -rf /home/$(USER)/data/wordpress/*
+	@echo "Dossiers de données nettoyés dans /home/$(USER)/data/"
 
 dns-clean:
 	@sudo sed -i '/$(DOMAIN_NAME)/d' /etc/hosts
 	@echo "DNS nettoyé pour $(DOMAIN_NAME)"
 
+clean_cache:
+	docker builder prune -f
+
 re: fclean all
 
-.PHONY: all setup dns-setup data-setup up down fclean dns-clean re
+.PHONY: all setup dns-setup data-setup up down fclean dns-clean re clean_cache

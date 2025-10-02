@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Installer PHP, PHP-FPM et extensions nécessaires
 RUN apt-get update && \
-    apt-get install -y php php-fpm php-mysql wget tar curl netcat-traditional && \
+    apt-get install -y php php-fpm php-mysql wget tar curl netcat-traditional php8.2-redis && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configurer PHP-FPM pour écouter sur 0.0.0.0:9000 au lieu d'un socket
