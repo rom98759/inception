@@ -2,7 +2,7 @@ FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installer PHP, PHP-FPM et extensions nécessaires
+# Installer redis
 RUN apt-get update && \
     apt-get install -y redis && \
     apt-get clean && rm -rf /var/lib/apt/lists/*

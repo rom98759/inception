@@ -3,7 +3,7 @@ include srcs/.env
 export $(shell sed 's/=.*//' srcs/.env)
 
 
-all: setup up
+all: setup up ping
 
 setup: dns-setup data-setup
 
@@ -39,6 +39,15 @@ dns-clean:
 
 clean_cache:
 	docker builder prune -f
+
+ping:
+	@echo "Attente que le service $(DOMAIN_NAME) soit opérationnel..."
+	@until [ "$$(curl -k -o /dev/null -s -w '%{http_code}' https://$(DOMAIN_NAME))" = "200" ]; do \
+		echo "Pas encore prêt ..."; \
+		sleep 1; \
+	done
+	@echo "✅ Le service $(DOMAIN_NAME) est opérationnel."
+
 
 re: fclean all
 

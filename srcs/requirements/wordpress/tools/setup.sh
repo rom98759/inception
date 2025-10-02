@@ -37,7 +37,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     echo "🔄 Installation de WordPress..."
     wp core install \
       --url="https://$DOMAIN_NAME" \
-      --title="Mon super site" \
+      --title="Vive INCEPTION !!" \
       --admin_user=$WP_ADMIN_USER \
       --admin_password=$WP_ADMIN_PASSWORD \
       --admin_email=$WP_ADMIN_EMAIL \

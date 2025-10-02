@@ -58,6 +58,22 @@ services:
       - wordpress_data:/var/www/html
     restart: unless-stopped
 
+  ftp:
+    build: ./requirements/bonus/ftp
+    container_name: ftp
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: unless-stopped
+
 volumes:
   mariadb_data:
     driver: local
