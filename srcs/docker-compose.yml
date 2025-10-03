@@ -74,6 +74,17 @@ services:
       - wordpress_data:/var/www/html
     restart: unless-stopped
 
+  adminer:
+    build: ./requirements/bonus/Adminer
+    container_name: adminer
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    networks:
+      - inception
+    restart: unless-stopped
+
 volumes:
   mariadb_data:
     driver: local
