@@ -1,16 +1,7 @@
-s
 
-wordpress:
-    build:
-      context: ./requirements/wordpress
-    container_name: wordpress
-    env_file:
-      - .env
-    depends_on:
-      - mariadb
-    networks:
-      - inception
-    volumes:
-      - wordpress_data:/var/www/html
 
-  wordpress_data:
+Commandes \
+
+
+
+docker exec nginx curl -s -X POST http://portfolio:3000/api/send-email -H "Content-Type: application/json" -d '{"name":"Test","email":"test@test.com","subject":"Test","message":"Test message"}'

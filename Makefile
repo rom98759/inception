@@ -41,13 +41,27 @@ clean_cache:
 	docker builder prune -f
 
 ping:
-	@echo "Attente que le service $(DOMAIN_NAME) soit opérationnel..."
+	@echo "Attente que le service https://$(DOMAIN_NAME) soit opérationnel..."
 	@until [ "$$(curl -k -o /dev/null -s -w '%{http_code}' https://$(DOMAIN_NAME))" = "200" ]; do \
 		echo "Pas encore prêt ..."; \
 		sleep 1; \
 	done
-	@echo "✅ Le service $(DOMAIN_NAME) est opérationnel."
+	@echo "✅ Le service https://$(DOMAIN_NAME) est opérationnel."
 
+# 	@echo "Attente que le service https://$(DOMAIN_NAME)/adminer soit opérationnel..."
+# 	@until [ "$$(curl -k -o /dev/null -s -w '%{http_code}' https://$(DOMAIN_NAME)/adminer) " = "200" ]; do \
+# 		echo "Pas encore prêt ..."; \
+# 		sleep 1; \
+# 	done
+# 	@echo "✅ Le service https://$(DOMAIN_NAME)/adminer est opérationnel."
+
+# 	@echo "Attente que le service https://$(DOMAIN_NAME)/cv soit opérationnel..."
+# 	@until [ "$$(curl -k -o /dev/null -s -w '%{http_code}' https://$(DOMAIN_NAME)/cv) " = "200" ]; do \
+# 		echo "Pas encore prêt ..."; \
+# 		sleep 1; \
+# 	done
+# 	@echo "✅ Le service https://$(DOMAIN_NAME)/cv est opérationnel."
+# 	@echo "Tous les services sont opérationnels."
 
 re: fclean all
 
