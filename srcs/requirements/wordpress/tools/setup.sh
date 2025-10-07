@@ -65,6 +65,16 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
   ####### BONUS PART ################
 
+  ## Theme Bedrock ##
+  echo "🎨 Installation du thème bedrock"
+  if ! wp theme is-installed bedrock --path=/var/www/html --allow-root; then
+    wp theme install bedrock --activate --allow-root
+    echo "✅ Thème bedrock installé et activé"
+  else
+    wp theme activate twentytwentythree --allow-root
+    echo "✅ Thème Twenty Twenty-Three activé"
+  fi
+
   ## redis ##
 
   wp config set WP_REDIS_HOST redis --allow-root

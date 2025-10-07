@@ -12,8 +12,35 @@ server {
     root /var/www/html;
     index index.php index.html;
 
-    # Portfolio static assets (CSS/JS from /cv page) - AVANT les règles générales
-    location ~ ^/(style\.css|script\.js|favicon\.ico)$ {
+    # ==========================================
+    # SERVICES COMPLETS (priorité maximale)
+    # ==========================================
+
+    # MailHog - Tout le service (interface, assets, API, WebSocket)
+    location /mail/ {
+        proxy_pass http://mailhog:8025;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket support pour interface temps réel
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # MailHog - Page d'accueil sans slash final
+    location = /mail {
+        return 301 $scheme://$host/mail/;
+    }
+
+    # Portfolio/CV - Interface complète avec tous ses assets
+    location /cv {
+        # Réécriture pour enlever /cv du chemin vers Portfolio
+        rewrite ^/cv/(.*) /$1 break;
+        rewrite ^/cv$ / break;
+
         proxy_pass http://portfolio:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -29,48 +56,55 @@ server {
         fastcgi_param SCRIPT_FILENAME /var/www/html/index.php;
     }
 
-    # Portfolio/CV service
-    location /cv {
-        proxy_pass http://portfolio:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+    # ==========================================
+    # APIs SPÉCIFIQUES
+    # ==========================================
 
-    # Portfolio API (pour l'envoi d'emails)
+    # Portfolio API (envoi d'emails)
     location /api/send-email {
         proxy_pass http://portfolio:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Content-Type application/json;
     }
 
-    # Interface MailHog - CORRIGÉ
-    location /mail {
-        proxy_pass http://mailhog:8025;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Pour WebSocket (interface temps réel)
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
 
-    # Static files caching (pour WordPress)
-    location ~* \.(ico|css|js|gif|jpe?g|png|svg|woff2?|ttf|eot)$ {
+    # ==========================================
+    # ASSETS SPÉCIFIQUES POUR CONFLITS
+    # ==========================================
+
+
+
+    # Assets Portfolio SEULEMENT depuis /cv (avec détection Referer)
+    location ~ ^/(style\.css|script\.js|favicon\.ico)$ {
+        # Si la requête vient de la page Portfolio (/cv)
+        if ($http_referer ~ "^https?://[^/]+/cv") {
+            proxy_pass http://portfolio:3000;
+            break;
+        }
+
+        # Sinon, traiter comme asset WordPress
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
         try_files $uri =404;
     }
 
-    # WordPress main location
+    # ==========================================
+    # WORDPRESS (défaut)
+    # ==========================================
+
+    # WordPress assets statiques (EXCLURE /mail/ et /cv/)
+    location ~* ^/(?!mail/|cv/).*\.(ico|css|js|gif|jpe?g|png|svg|woff2?|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # WordPress main location (page par défaut)
     location / {
         try_files $uri $uri/ /index.php?$args;
     }
