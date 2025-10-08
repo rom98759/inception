@@ -37,7 +37,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     echo "🔄 Installation de WordPress..."
     wp core install \
       --url="https://$DOMAIN_NAME" \
-      --title="Vive INCEPTION !!" \
+      --title="Inception" \
       --admin_user=$WP_ADMIN_USER \
       --admin_password=$WP_ADMIN_PASSWORD \
       --admin_email=$WP_ADMIN_EMAIL \
@@ -80,7 +80,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
   wp config set WP_REDIS_HOST redis --allow-root
   wp config set WP_REDIS_PORT 6379 --raw --allow-root
   wp config set WP_CACHE_KEY_SALT $DOMAIN_NAME --allow-root
-#   wp config set WP_REDIS_PASSWORD $REDIS_PASSWORD --allow-root
   wp config set WP_REDIS_CLIENT phpredis --allow-root
   wp plugin install redis-cache --activate --allow-root
   wp plugin update --all --allow-root
