@@ -18,7 +18,6 @@ dns-setup:
 data-setup:
 	@mkdir -p /home/$(USER)/data/mariadb
 	@mkdir -p /home/$(USER)/data/wordpress
-	@chmod -R 755 /home/$(USER)/data
 	@echo "Dossiers de données créés dans /home/$(USER)/data/"
 
 up:
