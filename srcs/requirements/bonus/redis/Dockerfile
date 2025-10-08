@@ -14,4 +14,4 @@ RUN chmod +x /tmp/redis.sh
 EXPOSE 6379
 
 # Lancer le script au démarrage
-CMD ["sh", "/tmp/redis.sh"]
+ENTRYPOINT ["bash", "/tmp/redis.sh"]

@@ -27,4 +27,4 @@ RUN sed -i 's/#error_log/error_log/' /etc/nginx/nginx.conf && \
 
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

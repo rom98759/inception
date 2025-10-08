@@ -24,4 +24,4 @@ RUN chmod 644 /etc/vsftpd.conf && \
 EXPOSE 20 21 21100-21110
 
 # Utiliser le script de setup comme entrypoint
-ENTRYPOINT ["/setup.sh"]
+ENTRYPOINT ["bash", "/setup.sh"]

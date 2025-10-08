@@ -30,4 +30,4 @@ RUN chmod +x /setup.sh
 EXPOSE 9000
 
 # Lancer le script au démarrage
-CMD ["/setup.sh"]
+ENTRYPOINT ["bash", "/setup.sh"]

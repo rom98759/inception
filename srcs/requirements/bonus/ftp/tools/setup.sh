@@ -22,21 +22,26 @@ if ! id "$FTP_USER" &>/dev/null; then
     # Définir le mot de passe
     echo "$FTP_USER:$FTP_PASSWORD" | chpasswd
 
-    # Ajouter l'utilisateur au groupe www-data pour avoir les bonnes permissions
-    usermod -a -G www-data "$FTP_USER"
-
     echo "✅ Utilisateur FTP '$FTP_USER' créé avec succès"
 else
     echo "✅ L'utilisateur FTP '$FTP_USER' existe déjà"
+    # Mettre à jour le mot de passe au cas où
+    echo "$FTP_USER:$FTP_PASSWORD" | chpasswd
 fi
 
-# Configurer les permissions pour le répertoire WordPress
-chown -R www-data:www-data /var/www/html
-chmod -R 755 /var/www/html
+# Ajouter l'utilisateur FTP au groupe www-data
+usermod -a -G www-data "$FTP_USER"
 
-# Donner des permissions supplémentaires à l'utilisateur FTP
+# Donner la propriété complète du répertoire WordPress à l'utilisateur FTP
+# L'utilisateur FTP devient propriétaire, www-data reste dans le groupe
 chown -R "$FTP_USER:www-data" /var/www/html
+
+# Permissions complètes pour le propriétaire (FTP_USER), lecture/écriture pour le groupe (www-data)
 chmod -R 775 /var/www/html
+
+# S'assurer que tous les nouveaux fichiers hériteront du groupe www-data
+find /var/www/html -type d -exec chmod 2775 {} \;
+find /var/www/html -type f -exec chmod 664 {} \;
 
 # Créer le répertoire de logs si nécessaire
 mkdir -p /var/log

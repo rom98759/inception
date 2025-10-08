@@ -31,4 +31,4 @@ COPY src/ ./src/
 EXPOSE 3000
 
 # Démarrage de l'application
-CMD ["node", "src/server.js"]
+ENTRYPOINT ["node", "src/server.js"]

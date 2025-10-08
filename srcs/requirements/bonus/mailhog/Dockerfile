@@ -26,4 +26,4 @@ EXPOSE 1025 8025
 USER mailhog
 
 # Démarrage de MailHog
-CMD ["MailHog"]
+ENTRYPOINT ["MailHog"]

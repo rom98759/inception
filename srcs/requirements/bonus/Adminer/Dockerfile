@@ -28,4 +28,4 @@ RUN chmod +x /entrypoint_adminer.sh
 EXPOSE 9000
 
 # Lancer le script au démarrage
-CMD ["/entrypoint_adminer.sh"]
+ENTRYPOINT ["bash", "/entrypoint_adminer.sh"]
