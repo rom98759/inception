@@ -96,4 +96,4 @@ fi
 
 # Lancer PHP-FPM en mode foreground
 echo "🔄 Démarrage de PHP-FPM..."
-php-fpm8.2 -F
+exec php-fpm8.2 -F
