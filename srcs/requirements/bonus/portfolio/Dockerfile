@@ -1,34 +1,31 @@
 FROM debian:bookworm
 
-# Mise à jour des paquets et installation des dépendances
-RUN apt-get update && apt-get install -y \
+# Fail the build if curl fails inside the NodeSource pipe below.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Debian pins rot on every security update; track the bookworm suite instead.
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Installation de Node.js 18.x depuis NodeSource
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
+# Node.js 22 LTS: nodemailer 10 requires Node >= 20.
+# hadolint ignore=DL3008
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Vérification des versions installées
 RUN node --version && npm --version
 
-# Création du répertoire de travail
 WORKDIR /app
 
-# Copie des fichiers de dépendances
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Installation des dépendances Node.js
-RUN npm install --production
-
-# Copie du code source
 COPY src/ ./src/
 
-# Exposition du port
 EXPOSE 3000
 
-# Démarrage de l'application
 ENTRYPOINT ["node", "src/server.js"]

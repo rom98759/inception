@@ -4,6 +4,11 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
+
+// Form fields are user input rendered into an HTML email.
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[c]));
 const PORT = 3000;
 
 // Middleware
@@ -45,17 +50,19 @@ app.post('/api/send-email', async (req, res) => {
 
     try {
         // Configuration de l'email
+        // Fixed sender: letting the visitor set "From" enables address spoofing.
         const mailOptions = {
-            from: `"${name}" <${email}>`,
+            from: `"Portfolio" <${process.env.PORTFOLIO_FROM || 'portfolio@rcaillie.42.fr'}>`,
+            replyTo: { name: String(name), address: String(email) },
             to: process.env.CONTACT_EMAIL || 'contact@rcaillie.42.fr',
-            subject: `[Portfolio] ${subject}`,
+            subject: `[Portfolio] ${String(subject)}`,
             html: `
                 <h3>Nouveau message depuis votre portfolio</h3>
-                <p><strong>Nom:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Sujet:</strong> ${subject}</p>
+                <p><strong>Nom:</strong> ${escapeHtml(name)}</p>
+                <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+                <p><strong>Sujet:</strong> ${escapeHtml(subject)}</p>
                 <p><strong>Message:</strong></p>
-                <p>${message.replace(/\n/g, '<br>')}</p>
+                <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
             `
         };
 
